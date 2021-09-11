@@ -16,20 +16,29 @@ class Post
     {
     }
 
-    function insertall()
+    function insertPost()
     {
         $this->slug = $this->slug_encoder($this->title);
 
         $conn = $this->getConn();
 
         $sql = "INSERT INTO " . $this->table . " (title, slug, content)
-VALUES ('" . $this->title . "', '" . $this->slug . "', '" . $this->content . "')";
+        VALUES (?,?,?)";
 
-        if ($conn->query($sql) === TRUE) {
-            return "New record created successfully";
-        } else {
-            return "Error: " . $sql . "<br>" . $conn->error;
-        }
+
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("sss", $this->title, $this->slug, $this->content);
+
+        /*
+        $stmt->bind_param("sss", $title, $slug, $content);
+        $title = $this->title;
+        $slug = $this->slug;
+        $content = $this->content;
+*/
+        $stmt->execute();
+        $stmt->close();
+
+        return "New record created successfully";
 
         $conn->close();
     }
@@ -63,8 +72,15 @@ VALUES ('" . $this->title . "', '" . $this->slug . "', '" . $this->content . "')
         $data = array();
 
         $conn = $this->getConn();
-        $sql = "SELECT id, title, content FROM " . $this->table . " WHERE id = " . $id;
-        $result = $conn->query($sql);
+        $sql = "SELECT id, title, content FROM " . $this->table . " WHERE id = ?";
+
+        $stmt = $conn->prepare($sql);
+
+        $stmt->bind_param("i", $id);
+
+        $stmt->execute();
+
+        $result = $stmt->get_result();
 
         if ($result->num_rows > 0) {
             // output data of each row
@@ -86,31 +102,46 @@ VALUES ('" . $this->title . "', '" . $this->slug . "', '" . $this->content . "')
         $conn = $this->getConn();
         $this->slug = $this->slug_encoder($this->title);
 
-        $sql = "UPDATE " . $this->table
-            . " SET title='" . $this->title
-            . "' , slug = '" . $this->slug
-            . "' , content = '" . $this->content . "' WHERE id=" . $id;
-        // return $sql;
 
-        if ($conn->query($sql) === TRUE) {
-            return "Post updated successfully";
-        } else {
-            return "Error: " . $sql . "<br>" . $conn->error;
-        }
+        $sql = "UPDATE " . $this->table
+            . " SET title=? , slug = ? , content = ? WHERE id=?";
+
+        $stmt = $conn->prepare($sql);
+
+        $stmt->bind_param("sssi", $this->title, $this->slug, $this->content, $id);
+
+
+        /*
+        $stmt->bind_param("sssi", $title, $slug, $content, $postid);
+        
+        $title = $this->title;
+        $slug = $this->slug;
+        $content = $this->content;
+        $postid = $id;
+*/
+        $stmt->execute();
+        $stmt->close();
+
+        return "Post updated successfully";
 
         $conn->close();
     }
+
+
 
     public function deletePost($id)
     {
         # code...
         $conn = $this->getConn();
-        $sql = "DELETE FROM " . $this->table . " WHERE id=" . $id;
-        if ($conn->query($sql) === TRUE) {
-            return "Post deleted successfully";
-        } else {
-            return "Error: " . $sql . "<br>" . $conn->error;
-        }
+        $sql = "DELETE FROM " . $this->table . " WHERE id=?";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("i", $id);
+
+
+        $stmt->execute();
+        $stmt->close();
+        return "Post deleted successfully";
+
         $conn->close();
     }
 

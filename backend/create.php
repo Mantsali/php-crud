@@ -39,7 +39,7 @@
             $post->title = $data['title'];
             $post->content = $data['content'];
 
-            echo $post->insertall();
+            echo $post->insertPost();
         }
         //clear post
         $_POST = array();
