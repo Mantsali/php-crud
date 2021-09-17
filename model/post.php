@@ -25,22 +25,23 @@ class Post
         $sql = "INSERT INTO " . $this->table . " (title, slug, content)
         VALUES (?,?,?)";
 
+        try {
+            $stmt = $conn->prepare($sql);
+            $stmt->bind_param("sss", $this->title, $this->slug, $this->content);
 
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param("sss", $this->title, $this->slug, $this->content);
-
-        /*
+            /*
         $stmt->bind_param("sss", $title, $slug, $content);
         $title = $this->title;
         $slug = $this->slug;
         $content = $this->content;
 */
-        $stmt->execute();
-        $stmt->close();
-
-        return "New record created successfully";
-
-        $conn->close();
+            $stmt->execute();
+            $stmt->close();
+            $conn->close();
+            return "New record created successfully";
+        } catch (Exception $e) {
+            if ($conn->errno === 1062) return 'Duplicate entry';
+        }
     }
 
     public function getAllPosts()
@@ -121,10 +122,8 @@ class Post
 */
         $stmt->execute();
         $stmt->close();
-
-        return "Post updated successfully";
-
         $conn->close();
+        return "Post updated successfully";
     }
 
 
@@ -140,9 +139,9 @@ class Post
 
         $stmt->execute();
         $stmt->close();
-        return "Post deleted successfully";
 
         $conn->close();
+        return "Post deleted successfully";
     }
 
     private function getConn()

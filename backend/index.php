@@ -9,11 +9,8 @@
 </head>
 
 <body>
-    <a href="new_blog.php">create</a>
-    <a href="">read</a>
-    <a href="">update</a>
-
-    <a href="">delete</a>
+    <a href="create.php">create</a>
+    <a href="https://codeofaninja.com/2011/12/php-and-mysql-crud-tutorial.html">php crud tutorial</a>
 
     <?php
     include_once "../model/post.php";

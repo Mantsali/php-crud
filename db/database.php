@@ -16,20 +16,19 @@ class Database extends Config
     {
         //$config = new Config();
 
-        // Create connection to database
-        $this->conn = new mysqli($this->db_host, $this->db_username, $this->db_password, $this->db_name);
 
-        // Check connection
-        if ($this->conn->connect_error) {
-            echo "Database does not exist <br>";
-            // Create connection
-            $this->conn = new mysqli($this->db_host, $this->db_username, $this->db_password);
+        mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
+        try {
+            //connnection to database
+            $this->conn = new mysqli($this->db_host, $this->db_username, $this->db_password, $this->db_name);
 
-            // Check connection
-            if ($this->conn->connect_error) {
-                die("Connection failed: " . $this->conn->connect_error);
-            }
+            $this->conn->set_charset("utf8mb4");
+        } catch (Exception $e) {
+            error_log($e->getMessage());
+            exit('Error connecting to database');
         }
+
+
 
         return $this->conn;
     }
